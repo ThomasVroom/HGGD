@@ -24,8 +24,10 @@ parser.add_argument('--rgb-path', default='images/demo_rgb.png')
 parser.add_argument('--depth-path', default='images/demo_depth.png')
 
 # 2d
-parser.add_argument('--input-h', type=int, default=360)
-parser.add_argument('--input-w', type=int, default=640)
+IMG_H = 720
+IMG_W = 1280
+parser.add_argument('--input-h', type=int, default=IMG_H // 2)
+parser.add_argument('--input-w', type=int, default=IMG_W // 2)
 parser.add_argument('--sigma', type=int, default=10)
 parser.add_argument('--use-depth', type=int, default=1)
 parser.add_argument('--use-rgb', type=int, default=1)
@@ -52,7 +54,6 @@ parser.add_argument('--random-seed', type=int, default=123)
 
 args = parser.parse_args()
 
-
 class PointCloudHelper:
 
     def __init__(self, all_points_num) -> None:
@@ -64,7 +65,7 @@ class PointCloudHelper:
         fx, fy = intrinsics[0, 0], intrinsics[1, 1]
         cx, cy = intrinsics[0, 2], intrinsics[1, 2]
         # cal x, y
-        ymap, xmap = np.meshgrid(np.arange(720), np.arange(1280))
+        ymap, xmap = np.meshgrid(np.arange(IMG_H), np.arange(IMG_W))
         points_x = (xmap - cx) / fx
         points_y = (ymap - cy) / fy
         self.points_x = torch.from_numpy(points_x).float()
@@ -72,7 +73,7 @@ class PointCloudHelper:
         # for get downsampled xyz map
         ymap, xmap = np.meshgrid(np.arange(self.output_shape[1]),
                                  np.arange(self.output_shape[0]))
-        factor = 1280 / self.output_shape[0]
+        factor = IMG_W / self.output_shape[0]
         points_x = (xmap - cx / factor) / (fx / factor)
         points_y = (ymap - cy / factor) / (fy / factor)
         self.points_x_downscale = torch.from_numpy(points_x).float()
@@ -284,11 +285,11 @@ if __name__ == '__main__':
     print('-> loaded checkpoint %s ' % (args.checkpoint_path))
 
     # network eval mode
-    anchornet.eval()
-    localnet.eval()
+    #anchornet.eval()
+    #localnet.eval()
 
     # read image and conver to tensor
-    ori_depth = np.array(Image.open(args.depth_path))
+    ori_depth = np.array(Image.open(args.depth_path))#[:, :, 0]
     ori_rgb = np.array(Image.open(args.rgb_path)) / 255.0
     ori_depth = np.clip(ori_depth, 0, 1000)
     ori_rgb = torch.from_numpy(ori_rgb).permute(2, 1, 0)[None]

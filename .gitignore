@@ -7,6 +7,7 @@ pred*/
 .vscode/
 pytorch3d/
 realsense_checkpoint
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
