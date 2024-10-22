@@ -1,5 +1,4 @@
 import argparse
-import os
 import random
 from time import time
 
@@ -16,18 +15,17 @@ from dataset.evaluation import (anchor_output_process, collision_detect,
 from dataset.pc_dataset_tools import data_process, feature_fusion
 from models.anchornet import AnchorGraspNet
 from models.localgraspnet import PointMultiGraspNet
-from train_utils import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--checkpoint-path', default=None)
+parser.add_argument('--checkpoint-path', default='realsense_checkpoint')
 
 # image input
-parser.add_argument('--rgb-path')
-parser.add_argument('--depth-path')
+parser.add_argument('--rgb-path', default='images/demo_rgb.png')
+parser.add_argument('--depth-path', default='images/demo_depth.png')
 
 # 2d
-parser.add_argument('--input-h', type=int)
-parser.add_argument('--input-w', type=int)
+parser.add_argument('--input-h', type=int, default=360)
+parser.add_argument('--input-w', type=int, default=640)
 parser.add_argument('--sigma', type=int, default=10)
 parser.add_argument('--use-depth', type=int, default=1)
 parser.add_argument('--use-rgb', type=int, default=1)
@@ -38,10 +36,10 @@ parser.add_argument('--anchor-z', type=float, default=20.0)
 parser.add_argument('--grid-size', type=int, default=8)
 
 # pc
-parser.add_argument('--anchor-num', type=int)
-parser.add_argument('--all-points-num', type=int)
-parser.add_argument('--center-num', type=int)
-parser.add_argument('--group-num', type=int)
+parser.add_argument('--anchor-num', type=int, default=7)
+parser.add_argument('--all-points-num', type=int, default=25600)
+parser.add_argument('--center-num', type=int, default=48)
+parser.add_argument('--group-num', type=int, default=512)
 
 # grasp detection
 parser.add_argument('--heatmap-thres', type=float, default=0.01)
@@ -50,7 +48,7 @@ parser.add_argument('--local-thres', type=float, default=0.01)
 parser.add_argument('--rotation-num', type=int, default=1)
 
 # others
-parser.add_argument('--random-seed', type=int, default=123, help='Random seed')
+parser.add_argument('--random-seed', type=int, default=123)
 
 args = parser.parse_args()
 
@@ -283,7 +281,6 @@ if __name__ == '__main__':
     anchors = {'gamma': basic_anchors, 'beta': basic_anchors}
     anchors['gamma'] = check_point['gamma']
     anchors['beta'] = check_point['beta']
-    logging.info('Using saved anchors')
     print('-> loaded checkpoint %s ' % (args.checkpoint_path))
 
     # network eval mode
